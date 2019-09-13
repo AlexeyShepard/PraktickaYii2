@@ -1,4 +1,4 @@
-<a href="/main/contract?id=<?= $_GET['id'] ?>" title="Вернуться к информации об недвижимости" data-pjax="0">
+<a href="/frontend/web/main/contract?id=<?= $_GET['id'] ?>" title="Вернуться к информации об недвижимости" data-pjax="0">
     <button class="btn btn-primary">Отмена</button>
 </a> <br> <br>
 

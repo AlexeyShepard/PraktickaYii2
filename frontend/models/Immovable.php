@@ -20,8 +20,11 @@ class Immovable extends ActiveRecord
 
     public function rules(){
         return [
-            [['Name','Description','Cost','Id_immovable_type_FK'], 'required'],
+            [['Name','Description','Cost','Id_immovable_type_FK'], 'required', 'message' => 'Поле не заполнено'],
             [['Image'], 'file', 'extensions' => 'png, jpg'],
+            [['Name','Description'], 'string', 'max' => 200],
+            ['Cost', 'double', 'message' => 'Введите числовое значение'],
+            ['Cost', 'double', 'max' => 99999999999, 'message' => 'Слишком длинное значение'],
         ];
     }
 
@@ -29,7 +32,9 @@ class Immovable extends ActiveRecord
     {
         if($this->validate())
         {
-            $this->Image->saveAs("uploads/{$this->Image->baseName}.{$this->Image->extension}");
+            if($this->Image != null){
+                $this->Image->saveAs("uploads/{$this->Image->baseName}.{$this->Image->extension}");
+            }           
         }
         else
         {

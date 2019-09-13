@@ -52,17 +52,34 @@ class MainController extends Controller
      * Вывод вида с таблицей всей недвижимости
      */
     public function actionImmovables(){
-		return $this->render("immovables");		
+
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render("immovables");	
+        }
+        else{
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        } 	        
     }
     
     /**
      * Вывод вида просмотра информации об недвижимости
      */
-    public function actionImmovable(){
-        $id = $_GET['id'];
-        $model = Immovable::findOne($id);
+    public function actionImmovable()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $id = $_GET['id'];
+            $model = Immovable::findOne($id);
 
-        return $this->render("immovable", ['model' => $model]);
+            return $this->render("immovable", ['model' => $model]);    
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        } 
     }
 
     /**
@@ -70,25 +87,35 @@ class MainController extends Controller
      */
     public function actionAddImmovable(){
         
-        $model = new Immovable();
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = new Immovable();
         
-        if($model->load(Yii::$app->request->post()) && $model->validate())
-        {
-            $model->Image = UploadedFile::getInstance($model, 'Image');
-            $model->upload();
-            $model->ImagePath = $model->Image->baseName . "." . $model->Image->extension;
-            $model->Image = null;
-            $model->save();
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $model->Image = UploadedFile::getInstance($model, 'Image');
+                $model->upload();
+                $model->ImagePath = $model->Image->baseName . "." . $model->Image->extension;
+                $model->Image = null;
+                $model->save();
 
-            return $this->redirect("/main/immovable?id=" . $model['Id_immovable']);
-        }
-        else
-        {
+                return $this->redirect("/frontend/web/main/immovable?id=" . $model['Id_immovable']);
+            }
+            else
+            {
             $id = ImmovableType::find()->select('Id_Immovable_type')->column();
 			$name = ImmovableType::find()->select('Immovable_type_name')->column();
 			$model->Id_immovable_type = $this->DropDownMap($id, $name);
             return $this->render("add-immovable", ['model' => $model]);
+            }    
         }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }
+
+        
            
     }
 
@@ -97,64 +124,96 @@ class MainController extends Controller
      */
     public function actionEditImmovable(){
         
-        $model = new Immovable();
-        
-        if($model->load(Yii::$app->request->post()) && $model->validate())
+        if(!Yii::$app->user->isGuest)
         {
-            $update_model = Immovable::findOne($_GET['id']);
+            $model = new Immovable();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $update_model = Immovable::findOne($_GET['id']);
 
-            $update_model['Id_immovable'] = $_GET['id'];
-            $update_model['Name'] = $model['Name'];
-            $update_model["Description"] = $model["Description"];
-            $update_model["Cost"] = $model["Cost"];
-            $update_model["Id_immovable_type_FK"] = $model["Id_immovable_type_FK"];
-            $update_model->Image = UploadedFile::getInstance($model, 'Image');
-            $update_model->upload();
-            $update_model['ImagePath'] = $update_model->Image->baseName . "." . $update_model->Image->extension;
-            $update_model->Image = null;
+                $update_model['Id_immovable'] = $_GET['id'];
+                $update_model['Name'] = $model['Name'];
+                $update_model["Description"] = $model["Description"];
+                $update_model["Cost"] = $model["Cost"];
+                $update_model["Id_immovable_type_FK"] = $model["Id_immovable_type_FK"];
+                $update_model->Image = UploadedFile::getInstance($model, 'Image');
+                $update_model->upload();
+                $update_model['ImagePath'] = $update_model->Image->baseName . "." . $update_model->Image->extension;
+                $update_model->Image = null;
 
-            $update_model->update();
+                $update_model->update();
 
-            return $this->redirect("/main/immovable?id=" . $_GET['id']);
+                return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['id']);
+            }
+            else
+            {
+                $id = $_GET['id'];
+                $model = Immovable::findOne($id);
+
+                $id = ImmovableType::find()->select('Id_Immovable_type')->column();
+			    $name = ImmovableType::find()->select('Immovable_type_name')->column();
+			    $model->Id_immovable_type = $this->DropDownMap($id, $name);
+
+                return $this->render("edit-immovable", ['model' => $model]);
+            }    
         }
         else
         {
-            $id = $_GET['id'];
-            $model = Immovable::findOne($id);
-
-            $id = ImmovableType::find()->select('Id_Immovable_type')->column();
-			$name = ImmovableType::find()->select('Immovable_type_name')->column();
-			$model->Id_immovable_type = $this->DropDownMap($id, $name);
-
-        return $this->render("edit-immovable", ['model' => $model]);
-        }    
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        } 
+        
+            
     }
 
     /**
      * Удаление недвижимости
      */
     public function actionDeleteImmovable(){
-        $id = $_GET['id'];
+       
+        if(!Yii::$app->user->isGuest)
+        {
+            $id = $_GET['id'];
 
-        $model = Immovable::findOne($id);
-        $model->delete();
+            ContractOfImmovables::deleteAll(['Id_immovable_FK' => $id]);
+            ContractOfOwners::deleteAll(['Id_immovable_FK' => $id]);
+          
+            $model = Immovable::findOne($id);
+            $model->delete();
 
-        return $this->redirect("/main/immovables");
+            return $this->redirect("/frontend/web/main/immovables");  
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        } 
+        
     }
 
     /**
      * Для загрузки картинки
      */
     public function actionUpload(){
-		$model = new UploadImage();
-        if(Yii::$app->request->isPost)
+        
+        if(!Yii::$app->user->isGuest)
         {
-			$model->image = UploadedFile::getInstance($model, 'image');
-			$model->upload();
-            return $this->render('upload-image', ['model' => $model]);
-        }   
-
-        return $this->render('upload-image', ['model' => $model]);
+            $model = new UploadImage();
+            if(Yii::$app->request->isPost)
+            {
+                $model->image = UploadedFile::getInstance($model, 'image');
+                $model->upload();
+                return $this->render('upload-image', ['model' => $model]);
+            }   
+    
+            return $this->render('upload-image', ['model' => $model]);    
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
     }
 
     /**
@@ -162,7 +221,15 @@ class MainController extends Controller
      */
     public function actionAddContractToImmovable()
     {       
-        return $this->render('add-contract-to-immovable');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-contract-to-immovable');       
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
     }
 
     /**
@@ -170,19 +237,27 @@ class MainController extends Controller
      */
     public function actionAddContractToImmovableComplete()
     {
-        $Id_immovable = $_GET['im'];
-        $Id_contract = $_GET['id'];
-
-        $model = new ContractOfImmovables();
-        $Immovable_cost = Immovable::findOne($_GET['im']);
-
-        $model->Id_contract_FK = $Id_contract;
-        $model->Id_immovable_FK = $Id_immovable;
-        $model->Cost = $Immovable_cost->Cost;
-
-        $model->save();
-
-        return $this->redirect("/main/immovable?id=" . $_GET['im']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['im'];
+            $Id_contract = $_GET['id'];
+    
+            $model = new ContractOfImmovables();
+            $Immovable_cost = Immovable::findOne($_GET['im']);
+    
+            $model->Id_contract_FK = $Id_contract;
+            $model->Id_immovable_FK = $Id_immovable;
+            $model->Cost = $Immovable_cost->Cost;
+    
+            $model->save();
+    
+            return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);       
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }      
     }
 
     /**
@@ -190,13 +265,21 @@ class MainController extends Controller
      */
     public function actionDeleteContractToImmovable()
     {
-        $Id_immovable = $_GET['im'];
-        $Id_contract = $_GET['id'];
-        
-        $ContractToDelete = ContractOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_contract_FK' => $Id_contract])->one();
-        $ContractToDelete->delete();
-
-        return $this->redirect("/main/immovable?id=" . $_GET['im']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['im'];
+            $Id_contract = $_GET['id'];
+            
+            $ContractToDelete = ContractOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_contract_FK' => $Id_contract])->one();
+            $ContractToDelete->delete();
+    
+            return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);      
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
     }
 
     /**
@@ -204,7 +287,15 @@ class MainController extends Controller
      */
     public function actionAddOwnerToImmovable()
     {
-        return $this->render('add-owner-to-immovable');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-owner-to-immovable');     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
     }
     
     /**
@@ -212,17 +303,25 @@ class MainController extends Controller
      */
     public function actionAddOwnerToImmovableComplete()
     {
-        $Id_immovable = $_GET['im'];
-        $Id_owner = $_GET['id'];
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['im'];
+            $Id_owner = $_GET['id'];
 
-        $model = new OwnerOfImmovables();
+            $model = new OwnerOfImmovables();
 
-        $model->Id_owner_FK = $Id_owner;
-        $model->Id_immovable_FK = $Id_immovable;
+            $model->Id_owner_FK = $Id_owner;
+            $model->Id_immovable_FK = $Id_immovable;
 
-        $model->save();
+            $model->save();
 
-        return $this->redirect("/main/immovable?id=" . $_GET['im']);
+            return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
     }
 
     /**
@@ -230,13 +329,21 @@ class MainController extends Controller
      */
     public function actionDeleteOwnerToImmovable()
     {
-        $Id_immovable = $_GET['im'];
-        $Id_owner = $_GET['id'];   
-        
-        $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
-        $OwnerToDelete->delete();
-
-        return $this->redirect("/main/immovable?id=" . $_GET['im']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['im'];
+            $Id_owner = $_GET['id'];   
+            
+            $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
+            $OwnerToDelete->delete();
+    
+            return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }         
     }
 	
 	/**
@@ -244,7 +351,15 @@ class MainController extends Controller
 	 */
 	public function actionContracts()
 	{
-		return $this->render('contracts');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('contracts');     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -252,9 +367,17 @@ class MainController extends Controller
 	 */
 	public function actionContract()
 	{
-		$model = Contract::findOne($_GET['id']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = Contract::findOne($_GET['id']);
 		
-		return $this->render('contract', ['model' => $model]);
+		    return $this->render('contract', ['model' => $model]);     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -262,29 +385,37 @@ class MainController extends Controller
      */
     public function actionAddContract(){
         
-        $model = new Contract();
-        
-        if($model->load(Yii::$app->request->post()) && $model->validate())
+        if(!Yii::$app->user->isGuest)
         {
-            $model['Date'] = date("Y-m-d");
-			//var_dump($model); exit;
-			$model->save();
-            return $this->redirect("/main/contract?id=" . $model['Id_contract']);
+            $model = new Contract();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $model['Date'] = date("Y-m-d");
+                //var_dump($model); exit;
+                $model->save();
+                return $this->redirect("/frontend/web/main/contract?id=" . $model['Id_contract']);
+            }
+            else
+            {
+                /*if(isset($_GET['id']))
+                {
+                    $model->Id_owner_FK = $_GET['id']; 
+                }*/
+                $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
+                $name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
+                $model->StageOfWork = $this->DropDownMap($id, $name);
+                $id = Owner::find()->select('Id_owner')->column();
+                $name = Owner::find()->select('Name')->column();
+                $model->Owners = $this->DropDownMap($id, $name);
+                return $this->render("add-contract", ['model' => $model]);
+            }     
         }
         else
         {
-            if(isset($_GET['id']))
-			{
-				$model->Id_owner_FK = $_GET['id']; 
-			}
-			$id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
-			$name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
-			$model->StageOfWork = $this->DropDownMap($id, $name);
-			$id = Owner::find()->select('Id_owner')->column();
-			$name = Owner::find()->select('Name')->column();
-			$model->Owners = $this->DropDownMap($id, $name);
-            return $this->render("add-contract", ['model' => $model]);
-        }          
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }                
     }
 	
 	/**
@@ -292,36 +423,44 @@ class MainController extends Controller
 	 */
 	public function actionEditContract()
 	{
-		$model = new Contract();
-        
-        if($model->load(Yii::$app->request->post()) && $model->validate())
+        if(!Yii::$app->user->isGuest)
         {
-            $update_model = Contract::findOne($_GET['id']);
-
-            $update_model['Id_contract'] = $_GET['id'];
-            $update_model['Number'] = $model['Number'];
-            $update_model["Total_cost"] = $model["Total_cost"];
-            $update_model["Id_owner_FK"] = $model["Id_owner_FK"];
-			$update_model["Id_stage_of_work_with_a_client_FK"] = $model["Id_stage_of_work_with_a_client_FK"];
-
-            $update_model->update();
-
-            return $this->redirect("/main/contract?id=" . $_GET['id']);
+            $model = new Contract();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $update_model = Contract::findOne($_GET['id']);
+    
+                $update_model['Id_contract'] = $_GET['id'];
+                $update_model['Number'] = $model['Number'];
+                $update_model["Total_cost"] = $model["Total_cost"];
+                $update_model["Id_owner_FK"] = $model["Id_owner_FK"];
+                $update_model["Id_stage_of_work_with_a_client_FK"] = $model["Id_stage_of_work_with_a_client_FK"];
+    
+                $update_model->update();
+    
+                return $this->redirect("/frontend/web/main/contract?id=" . $_GET['id']);
+            }
+            else
+            {
+                $id = $_GET['id'];
+                $model = Contract::findOne($id);
+    
+                $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
+                $name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
+                $model->StageOfWork = $this->DropDownMap($id, $name);
+                $id = Owner::find()->select('Id_owner')->column();
+                $name = Owner::find()->select('Name')->column();
+                $model->Owners = $this->DropDownMap($id, $name);
+    
+                return $this->render("edit-contract", ['model' => $model]);
+            }     
         }
         else
-		{
-            $id = $_GET['id'];
-            $model = Contract::findOne($id);
-
-            $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
-			$name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
-			$model->StageOfWork = $this->DropDownMap($id, $name);
-			$id = Owner::find()->select('Id_owner')->column();
-			$name = Owner::find()->select('Name')->column();
-			$model->Owners = $this->DropDownMap($id, $name);
-
-			return $this->render("edit-contract", ['model' => $model]);
-        }
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
 	}
 	
 	/**
@@ -329,12 +468,23 @@ class MainController extends Controller
 	 */
 	public function actionDeleteContract()
 	{
-		$id = $_GET['id'];
+        if(!Yii::$app->user->isGuest)
+        {
+            $id = $_GET['id'];
 
-        $model = Contract::findOne($id);
-        $model->delete();
+            ContractOfImmovables::deleteAll(['Id_contract_FK' => $id]);
+            ServicesOfContract::deleteAll(['Id_contract_FK' => $id]);
 
-        return $this->redirect("/main/contracts");
+            $model = Contract::findOne($id);
+            $model->delete();
+    
+            return $this->redirect("/frontend/web/main/contracts");     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -342,7 +492,15 @@ class MainController extends Controller
 	 */
 	public function actionOwners()
 	{
-		return $this->render('owners');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('owners');     
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
 	}
 	
     /**
@@ -350,9 +508,17 @@ class MainController extends Controller
 	 */
 	public function actionOwner()
 	{
-		$model = Owner::findOne($_GET['id']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = Owner::findOne($_GET['id']);
 		
-		return $this->render('owner', ['model' => $model]);
+		    return $this->render('owner', ['model' => $model]);    
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
 	}
 	
 	/**
@@ -360,20 +526,28 @@ class MainController extends Controller
 	 */
 	public function actionAddOwner()
 	{
-		$model = new Owner();
-        
-        if($model->load(Yii::$app->request->post()) && $model->validate())
+        if(!Yii::$app->user->isGuest)
         {
-			$model->save();
-            return $this->redirect("/main/owner?id=" . $model['Id_owner']);
+            $model = new Owner();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $model->save();
+                return $this->redirect("/frontend/web/main/owner?id=" . $model['Id_owner']);
+            }
+            else
+            {
+                $id = OwnerType::find()->select('Id_owner_type')->column();
+                $name = OwnerType::find()->select('Owner_type_name')->column();
+                $model->Owner_type = $this->DropDownMap($id, $name);
+                return $this->render("add-owner", ['model' => $model]);
+            }   
         }
         else
         {
-            $id = OwnerType::find()->select('Id_owner_type')->column();
-			$name = OwnerType::find()->select('Owner_type_name')->column();
-			$model->Owner_type = $this->DropDownMap($id, $name);
-            return $this->render("add-owner", ['model' => $model]);
-        }
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -381,34 +555,42 @@ class MainController extends Controller
 	 */
 	public function actionEditOwner()
 	{
-		$model = new Owner();
-        
-        if($model->load(Yii::$app->request->post()) && $model->validate())
+        if(!Yii::$app->user->isGuest)
         {
-            $update_model = Owner::findOne($_GET['id']);
-
-            $update_model['Id_owner'] = $_GET['id'];
-            $update_model['Name'] = $model['Name'];
-            $update_model["Phone_number"] = $model["Phone_number"];
-            $update_model["Email"] = $model["Email"];
-			$update_model["INN"] = $model["INN"];
-			$update_model["Id_owner_type_FK"] = $model["Id_owner_type_FK"];
-
-            $update_model->update();
-
-            return $this->redirect("/main/owner?id=" . $_GET['id']);
+            $model = new Owner();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $update_model = Owner::findOne($_GET['id']);
+    
+                $update_model['Id_owner'] = $_GET['id'];
+                $update_model['Name'] = $model['Name'];
+                $update_model["Phone_number"] = $model["Phone_number"];
+                $update_model["Email"] = $model["Email"];
+                $update_model["INN"] = $model["INN"];
+                $update_model["Id_owner_type_FK"] = $model["Id_owner_type_FK"];
+    
+                $update_model->update();
+    
+                return $this->redirect("/frontend/web/main/owner?id=" . $_GET['id']);
+            }
+            else
+            {
+                $id = $_GET['id'];
+                $model = Owner::findOne($id);
+    
+                $id = OwnerType::find()->select('Id_owner_type')->column();
+                $name = OwnerType::find()->select('Owner_type_name')->column();
+                $model->Owner_type = $this->DropDownMap($id, $name);
+    
+                return $this->render("edit-owner", ['model' => $model]);
+            }    
         }
         else
-		{
-            $id = $_GET['id'];
-            $model = Owner::findOne($id);
-
-			$id = OwnerType::find()->select('Id_owner_type')->column();
-			$name = OwnerType::find()->select('Owner_type_name')->column();
-			$model->Owner_type = $this->DropDownMap($id, $name);
-
-			return $this->render("edit-owner", ['model' => $model]);
-        }
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }         
 	}
 	
 	/**
@@ -416,12 +598,23 @@ class MainController extends Controller
 	 */
 	public function actionDeleteOwner()
 	{
-		$id = $_GET['id'];
+        if(!Yii::$app->user->isGuest)
+        {
+            $id = $_GET['id'];
 
-        $model = Owner::findOne($id);
-        $model->delete();
-		
-		return $this->redirect('owners');
+            OwnerOfImmovables::deleteAll(['Id_owner_FK' => $id]);
+            Contract::deleteAll(['Id_owner_FK' => $id]);
+
+            $model = Owner::findOne($id);
+            $model->delete();
+            
+            return $this->redirect('owners');   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -429,7 +622,15 @@ class MainController extends Controller
 	 */
 	public function actionAddContractToOwner()
 	{
-		return $this->render('add-contract-to-owner');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-contract-to-owner');  
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -437,17 +638,25 @@ class MainController extends Controller
 	 */
 	public function actionAddContractToOwnerComplete()
 	{
-		$Id_contract = $_GET['id'];
-        $Id_owner = $_GET['iw'];
-
-        $model = new ContractOfOwners();
-
-        $model->Id_owner_FK = $Id_owner;
-        $model->Id_contract_FK = $Id_contract;
-
-        $model->save();
-
-        return $this->redirect("/main/owner?id=" . $_GET['im']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_contract = $_GET['id'];
+            $Id_owner = $_GET['iw'];
+    
+            $model = new ContractOfOwners();
+    
+            $model->Id_owner_FK = $Id_owner;
+            $model->Id_contract_FK = $Id_contract;
+    
+            $model->save();
+    
+            return $this->redirect("/frontend/web/main/owner?id=" . $_GET['iw']);  
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -455,25 +664,41 @@ class MainController extends Controller
 	 */
 	public function actionAddImmovableToOwner()
 	{
-			return $this->render('add-immovable-to-owner');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-immovable-to-owner');
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }      
 	}
 	
 	/**
 	 * Завершение добаление собственности к собственнику 
 	 */
-	 public function actionAddImmovableToOwnerComplete()
+	public function actionAddImmovableToOwnerComplete()
 	{
-		$Id_immovable = $_GET['id'];
-        $Id_owner = $_GET['iw'];
-
-        $model = new ContractOfOwners();
-
-        $model->Id_owner_FK = $Id_owner;
-        $model->Id_immovable_FK = $Id_immovable;
-
-        $model->save();
-
-        return $this->redirect("/main/owner?id=" . $_GET['iw']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['id'];
+            $Id_owner = $_GET['iw'];
+    
+            $model = new ContractOfOwners();
+    
+            $model->Id_owner_FK = $Id_owner;
+            $model->Id_immovable_FK = $Id_immovable;
+    
+            $model->save();
+    
+            return $this->redirect("/frontend/web/main/owner?id=" . $_GET['iw']);
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }         
 	}
 	
 	/**
@@ -481,13 +706,21 @@ class MainController extends Controller
 	 */
 	public function actionDeleteImmovableToOwner()
 	{
-		$Id_immovable = $_GET['id'];
-        $Id_owner = $_GET['iw'];   
-        
-        $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
-        $OwnerToDelete->delete();
-
-        return $this->redirect("/main/owner?id=" . $_GET['iw']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['id'];
+            $Id_owner = $_GET['iw'];   
+            
+            $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
+            $OwnerToDelete->delete();
+    
+            return $this->redirect("/frontend/web/main/owner?id=" . $_GET['iw']);
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
 	}
 	
 	/**
@@ -495,11 +728,19 @@ class MainController extends Controller
 	 */
 	public function actionDeleteContractToOwner()
 	{
-		$model = Contract::findOne($_GET['id']);
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = Contract::findOne($_GET['id']);
 		
-		$model->delete();
+		    $model->delete();
 		
-		return $this->redirect("/main/owner?id=". $_GET['iw']);
+		    return $this->redirect("/frontend/web/main/owner?id=". $_GET['iw']);
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
 	}
 	
 	/**
@@ -507,7 +748,15 @@ class MainController extends Controller
 	 */
 	public function actionAddServiceToContract()
 	{
-		return $this->render('add-service-to-contract');
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-service-to-contract');   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        } 
 	}
 	
 	/**
@@ -515,49 +764,281 @@ class MainController extends Controller
 	 */
 	public function actionAddServiceToContractComplete()
 	{
-		$Id_contract = $_GET['id'];
-        $Id_service = $_GET['ic'];
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_contract = $_GET['ic'];
+            $Id_service = $_GET['id'];
+    
+            $model = new ServicesOfContract();
+    
+            $model->Id_contract_FK = $Id_contract;
+            $model->Id_service_FK = $Id_service;
+            $Service = Service::findOne($_GET['id']);
+            $model->Cost = $Service['Cost'];
+            $model->Date = date("Y-m-d");
+    
+            $model->save();
+    
+            return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']); 
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }      
+    }
+    
+    /**
+     * Удаление услуги из договора
+     */
+    public function actionDeleteServiceToContract()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_service = $_GET['id'];
+            $Id_contract = $_GET['ic'];   
+            
+            $OwnerToDelete = ServicesOfContract::find()->where(['Id_contract_FK' => $Id_contract, 'Id_service_FK' => $Id_service])->one();
+            $OwnerToDelete->delete();
+    
+            return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }           
+    }
 
-        $model = new ServicesOfContract();
+    /**
+     * Добавление недвижимости к договору
+     */
+    public function actionAddImmovableToContract()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('add-immovable-to-contract');   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
+    } 
 
-        $model->Id_contract_FK = $Id_contract;
-        $model->Id_service_FK = $Id_service;
-		$Service = Service::findOne($_GET['ic']);
-		$model->Cost = $Service->Cost;
+    /**
+     * Завершение добавления недвижимости к договору
+     */
+    public function actionAddImmovableToContractComplete()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_contract = $_GET['ic'];
+            $Id_immovable = $_GET['id'];  
+    
+            $model = new ContractOfImmovables();
+    
+            $model->Id_contract_FK = $Id_contract;
+            $model->Id_immovable_FK = $Id_immovable;
+            $Immovable = Immovable::findOne($_GET['id']);
+            $model->Cost = $Immovable['Cost'];
+    
+            $model->save();
+    
+            return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
+    }
 
-        $model->save();
+    /**
+     * Удаление недвижимости из договора
+     */
+    public function actionDeleteImmovableToContract()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $Id_immovable = $_GET['id'];
+            $Id_contract = $_GET['ic'];
+    
+            $ImmovableToDelete = ContractOfImmovables::find()->where(['Id_contract_FK' => $_GET['ic'], 'Id_immovable_FK' => $_GET['id']])->one();
+            $ImmovableToDelete->delete();
+    
+            return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
+    }
 
-        return $this->redirect("/main/contract?id=" . $_GET['ic']);
-	}
+    /**
+     * Вывод списка услуг
+     */
+    public function actionServices()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            return $this->render('services');   
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }          
+    }
+
+    /**
+     * Информация об услуге
+     */
+    public function actionService()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = Service::findOne($_GET['id']);
+        
+            return $this->render('service', ['model' => $model]);
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
+    }
+
+    /**
+     * Добавление услуги
+     */
+    public function actionAddService()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = new Service();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $model->save();
+                return $this->redirect("/frontend/web/main/service?id=" . $model['Id_service']);
+            }
+            else
+            {
+                return $this->render("add-service", ['model' => $model]);
+            }
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }           
+    }
+    
+    /**
+     * Редактирование информации об услуге
+     */
+    public function actionEditService()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $model = new Service();
+        
+            if($model->load(Yii::$app->request->post()) && $model->validate())
+            {
+                $update_model = Service::findOne($_GET['id']);
+    
+                $update_model['Id_service'] = $_GET['id'];
+                $update_model['Service_name'] = $model['Service_name'];
+                $update_model["Description"] = $model["Description"];
+                $update_model["Cost"] = $model["Cost"];
+    
+                $update_model->update();
+    
+                return $this->redirect("/frontend/web/main/service?id=" . $_GET['id']);
+            }
+            else
+            {
+                $id = $_GET['id'];
+                $model = Service::findOne($id);
+    
+                return $this->render("edit-service", ['model' => $model]);
+            }
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
+    }
+
+    /**
+     * Удаление информации об услуге
+     */
+    public function actionDeleteService()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            $ServicesOfContract = ServicesOfContract::deleteAll(['Id_service_FK' => $_GET['id']]);
+            
+            $model = Service::findOne($_GET['id']);
+            $model->delete();
+  
+            return $this->redirect('/frontend/web/main/services');
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }       
+    }
 	 
     /**
-     * Для генерации отчётов
+     * Для генерации отчётов в налоговую
      */
     public function actionReportGenerate()
     {
-        if(Yii::$app->request->isPost)
+        if(!Yii::$app->user->isGuest)
         {
-            $Begin_period = $_POST['Begin_period'];
-            $End_period =  $_POST['End_period'];
-			
-            $result = Zadanie_services::find()->where(['>', 'Date', $Begin_period])->all();  //Дописать условие          
-
-            $writer = new Xlsx($this->GenerateReport($result, $Begin_period, $End_period));
-            $FilePath = $Begin_period. "to". $End_period .".xlsx";
-            $writer->save("download/" . $FilePath);
-
-            $file = Yii::getAlias("@frontend/web/download/" . $FilePath);
+            if(Yii::$app->request->isPost)
+            {
+                $Begin_period = $_POST['Begin_period'];
+                $End_period =  $_POST['End_period'];
             
+                /*$query = new Query();
+                $query->select(['Service.Service_name', 'Service.Description', 'Services_of_contract.Cost'])
+                ->from('Services_of_contract')
+                ->join('INNER JOIN','Service','Services_of_contract.Id_service_FK = Service.Id_service')
+                ->where(['>', 'Date', $Begin_period])
+                ->andWhere(['<', 'Date', $End_period])
+                ->all();*/
 
-            return Yii::$app->response->sendFile($file);      
-			
+                $result = ServicesOfContract::find()
+                ->where(['>', 'Date', $Begin_period])
+                ->andWhere(['<', 'Date', $End_period])
+                ->all();
+
+                $writer = new Xlsx($this->GenerateReport($result, $Begin_period, $End_period));
+                $FilePath = $Begin_period. "to". $End_period .".xlsx";
+                $writer->save("download/" . $FilePath);
+
+                $file = Yii::getAlias("@frontend/web/download/" . $FilePath);
+                
+                return Yii::$app->response->sendFile($file); 
+            }
+            else
+            {
+                return $this->render("report-generate");    
+            }
         }
-        else 
+        else
         {
-            return $this->render("report-generate");
-        }
-    }	
-
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }    
+    }
+    
     /**
      * Самописная функция для возвращения значений DropDownList
      */
@@ -573,9 +1054,51 @@ class MainController extends Controller
     }
 
     /**
-     * Генерация отчёта
+     * Генерация отчёта для налоговой
      */
     public function GenerateReport($data, $Begin_period, $End_period)
+    {   
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $index = 2;
+        
+        $sheet->setCellValue("A1", "#");
+        $sheet->setCellValue("B1", "Наименование");
+        $sheet->setCellValue("C1", "Описание");   
+        $sheet->setCellValue("D1", "Стоимость");
+        
+        foreach($data as $d)
+        {
+            $id = $d['Id_service_FK'];
+            $result = Service::find()->where(['Id_service' => $id])->one();
+           
+            $sheet->setCellValue("A" . $index, $index - 1);
+            $sheet->setCellValue("B" . $index, $result['Service_name']);
+            $sheet->setCellValue("C" . $index, $result['Description']);   
+            $sheet->setCellValue("D" . $index, $d['Cost']);
+            $this->SetBorderThinStyle("A".$index.":D".$index, $spreadsheet);
+            $index++;
+        }
+
+        $cashIndex = $index - 1;
+        $formula = "=SUM(D4:D". $cashIndex.")";
+        $sheet->setCellValue("D".$index, $formula);
+        $sheet->setCellValue("C".$index, "Итого");
+
+        $index++;
+        $sheet->setCellValue("C".$index, "В том числе НДС");
+        $formula = "=(D".($index - 1) ."/100) * 20";
+        $sheet->setCellValue("D".$index, $formula);
+
+        return $spreadsheet;
+
+    }
+    
+    /**
+     * Генерация отчёта
+     */
+    public function GenerateReport2($data, $Begin_period, $End_period)
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -620,6 +1143,43 @@ class MainController extends Controller
         $sheet->MergeCells("A".$index.":D".$index);
         $sheet->setCellValue("A".$index, $this->ConvertToString($total));
         return $spreadsheet;
+    }
+
+
+    /**
+     * Для генерации отчётов
+     */
+    public function actionReportGenerate2()
+    {
+        if(!Yii::$app->user->isGuest)
+        {
+            if(Yii::$app->request->isPost)
+            {
+                $Begin_period = $_POST['Begin_period'];
+                $End_period =  $_POST['End_period'];
+                
+                $result = Zadanie_services::find()->where(['>', 'Date', $Begin_period])->all();  //Дописать условие        
+    
+                $writer = new Xlsx($this->GenerateReport($result, $Begin_period, $End_period));
+                $FilePath = $Begin_period. "to". $End_period .".xlsx";
+                $writer->save("download/" . $FilePath);
+    
+                $file = Yii::getAlias("@frontend/web/download/" . $FilePath);
+                
+    
+                return Yii::$app->response->sendFile($file);      
+                
+            }
+            else 
+            {
+                return $this->render("report-generate");
+            } 
+        }
+        else
+        {
+            Yii::$app->session->setFlash('error', 'Вы должны авторизоваться в системе');
+            return $this->redirect('/frontend/web/main');
+        }        
     }
     /**
      * функция для присвоения стиля

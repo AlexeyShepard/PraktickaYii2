@@ -5,15 +5,15 @@
     use yii\helpers\Html;
 ?>
 
-<a href="/main/immovables" title="Вернуться обратно к списку недвижимости" data-pjax="0">
-    <button class="btn btn-primary">Вернуться</button>
+<a href="/frontend/web/main/immovables" title="Вернуться обратно к списку недвижимости" data-pjax="0">
+    <button class="btn btn-primary">Вернуться к списку недвижимости</button>
 </a> 
 
-<a href="/main/edit-immovable?id=<?= $model['Id_immovable']?>" title="Перейти к редактированию" data-pjax="0">
+<a href="/frontend/web/main/edit-immovable?id=<?= $model['Id_immovable']?>" title="Перейти к редактированию" data-pjax="0">
     <button class="btn btn-warning">Изменить</button>
 </a> 
 
-<a href="/main/delete-immovable?id=<?= $model['Id_immovable']?>" title="Удалить объект из базы данных" data-pjax="0">
+<a href="/frontend/web/main/delete-immovable?id=<?= $model['Id_immovable']?>" title="Удалить объект из базы данных" data-pjax="0">
     <button class="btn btn-danger">Удалить</button>
 </a> 
 
@@ -23,12 +23,12 @@
 Описание: <?= $model['Description']; ?> <br>
 Стоимость: <?= $model['Cost']; ?>
 <br> <br>
-<?= Html::img('/uploads/' . $model['ImagePath']) ?>
+<?= Html::img('/frontend/web/uploads/' . $model['ImagePath']) ?>
 
 <div class="row">
     <div class="col-lg-6">
     <h3>Список договоров</h3>
-    <a href="/main/add-contract-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить договор к недвижимости" data-pjax="0">
+    <a href="/frontend/web/main/add-contract-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить договор к недвижимости" data-pjax="0">
         <button class="btn btn-primary">Добавить договор</button>
     </a>
     <br> <br>
@@ -77,7 +77,7 @@
     </div>
     <div class = "col-lg-6">
     <h3>Список собственников</h3>
-    <a href="/main/add-owner-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить собственника к недвижимости" data-pjax="0">
+    <a href="/frontend/web/main/add-owner-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить собственника к недвижимости" data-pjax="0">
         <button class="btn btn-primary">Добавить собственника</button>
     </a>
     <br> <br>

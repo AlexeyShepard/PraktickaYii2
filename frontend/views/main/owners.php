@@ -1,4 +1,4 @@
-<a href="/main/add-owner" title="Создать нового собственника" data-pjax="0">
+<a href="/frontend/web/main/add-owner" title="Создать нового собственника" data-pjax="0">
     <button class="btn btn-primary">Создать</button>
 </a> <br> <br>
 

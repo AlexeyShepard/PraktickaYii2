@@ -2,7 +2,7 @@
     use yii\widgets\ActiveForm;
     $form = ActiveForm::begin();
 ?>
-<form action="/main/report-generate" method="post">
+<form action="/frontend/web/main/report-generate" method="post">
     <label>Начало периода</label> <br>
     <input type="date" name="Begin_period" value="2019-01-01"/> <br>
     <label>Конец периода</label> <br>

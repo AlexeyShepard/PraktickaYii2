@@ -5,15 +5,15 @@
     use yii\helpers\Html;
 ?>
 
-<a href="/main/owners" title="Вернуться обратно к списку недвижимости" data-pjax="0">
-    <button class="btn btn-primary">Вернуться</button>
+<a href="/frontend/web/main/owners" title="Вернуться обратно к списку недвижимости" data-pjax="0">
+    <button class="btn btn-primary">Вернуться к списку собственности</button>
 </a> 
 
-<a href="/main/edit-owner?id=<?= $model['Id_owner']?>" title="Перейти к редактированию" data-pjax="0">
+<a href="/frontend/web/main/edit-owner?id=<?= $model['Id_owner']?>" title="Перейти к редактированию" data-pjax="0">
     <button class="btn btn-warning">Изменить</button>
 </a> 
 
-<a href="/main/delete-owner?id=<?= $model['Id_owner']?>" title="Удалить объект из базы данных" data-pjax="0">
+<a href="/frontend/web/main/delete-owner?id=<?= $model['Id_owner']?>" title="Удалить объект из базы данных" data-pjax="0">
     <button class="btn btn-danger">Удалить</button>
 </a> 
 
@@ -28,7 +28,7 @@ Email: <?= $model['Email']; ?> <br>
 <div class="row">
     <div class="col-lg-6">
     <h3>Список договоров</h3>
-    <a href="/main/add-contract?id=<?= $model['Id_owner']?>" title="Добавить договор к собственнику" data-pjax="0">
+    <a href="/frontend/web/main/add-contract?id=<?= $model['Id_owner']?>" title="Добавить договор к собственнику" data-pjax="0">
         <button class="btn btn-primary">Создать договор</button>
     </a>
     <br> <br>
@@ -76,7 +76,7 @@ Email: <?= $model['Email']; ?> <br>
     </div>
     <div class = "col-lg-6">
     <h3>Список недвижимимости</h3>
-    <a href="/main/add-immovable-to-owner?id=<?= $model['Id_owner']?>" title="Добавить недвижимость к собственнику" data-pjax="0">
+    <a href="/frontend/web/main/add-immovable-to-owner?id=<?= $model['Id_owner']?>" title="Добавить недвижимость к собственнику" data-pjax="0">
         <button class="btn btn-primary">Добавить недвижимимость</button>
     </a>
     <br> <br>

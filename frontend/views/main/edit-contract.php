@@ -1,4 +1,4 @@
-<a href="/main/contract?id=<?= $_GET['id']?>" title="Вернуться обратно к списку договоров" data-pjax="0">
+<a href="/frontend/web/main/contract?id=<?= $_GET['id']?>" title="Вернуться обратно к списку договоров" data-pjax="0">
     <button class="btn btn-primary">Вернуться</button>
 </a> <br> <br>
 
@@ -7,8 +7,8 @@
     $form = ActiveForm::begin();   
 ?>
     
-    <?= $form->field($model, 'Number')->label('Номер заказа'); ?>
-    <?= $form->field($model, 'Total_cost')->label('Итоговая сумма'); ?>
+    <?= $form->field($model, 'Number')->label('Номер заказа')->hint("5 символов") ?>
+    <?= $form->field($model, 'Total_cost')->label('Итоговая сумма')->hint("Не более 200 символов") ?>
     <?= $form->field($model, 'Id_stage_of_work_with_a_client_FK')->dropdownList($model->StageOfWork,
     ['prompt'=>'Выберите этап работы с клиентами'])->label("Этап работы с клиентом"); ?>
 	<?= $form->field($model, 'Id_owner_FK')->dropdownList($model->Owners,

@@ -1,4 +1,4 @@
-<a href="/main/add-immovable" title="Создать новую запись недвижимости" data-pjax="0">
+<a href="/frontend/web/main/add-immovable" title="Создать новую запись недвижимости" data-pjax="0">
     <button class="btn btn-primary">Создать</button>
 </a> <br> <br>
 

@@ -1,4 +1,4 @@
-<a href="/main/owner?id="<?= $_GET['id']?> title="Вернуться обратно" data-pjax="0">
+<a href="/frontend/web/main/owner?id=<?= $_GET['id']?>" title="Вернуться обратно" data-pjax="0">
     <button class="btn btn-primary">Отмена</button>
 </a> <br> <br>
 
@@ -9,10 +9,10 @@
 
     $form = ActiveForm::begin();   
 ?>   
-    <?= $form->field($model, 'Name')->label('Название'); ?>
-    <?= $form->field($model, 'Phone_number')->label('Телефон'); ?>
+    <?= $form->field($model, 'Name')->label('Название')->hint("Не более 200 символов") ?>
+    <?= $form->field($model, 'Phone_number')->label('Телефон')->hint("Ровно 11 символов") ?>
 	<?= $form->field($model, 'Email')->label('Email'); ?>
-	<?= $form->field($model, 'INN')->label('INN'); ?>
+	<?= $form->field($model, 'INN')->label('INN')->hint("Ровно 9 символов") ?>
 	<?= $form->field($model, 'Id_owner_type_FK')->dropdownList($model->Owner_type,
     ['prompt'=>'Выберите тип'])->label("Тип собственника: "); ?>
 
