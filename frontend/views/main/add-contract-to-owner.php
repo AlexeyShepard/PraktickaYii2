@@ -1,4 +1,4 @@
-<a href="/main/immovable?id=<?= $_GET['id'] ?>" title="Вернуться к информации об недвижимости" data-pjax="0">
+<a href="/main/owner?id=<?= $_GET['id'] ?>" title="Вернуться к информации об собственности" data-pjax="0">
     <button class="btn btn-primary">Отмена</button>
 </a> <br> <br>
 
@@ -26,10 +26,10 @@
         'Date',
         [
             'class' => 'yii\grid\ActionColumn',
-            'template' => '{add-control-to-immovable-complete}',
+            'template' => '{add-contract-to-owner-complete}',
             'buttons' => [
-               'add-control-to-immovable-complete' => function ($url, $model, $key) {
-                   return Html::a('<button class="btn btn-primary btn-sm">Добавить</button>', 'add-contract-to-immovable-complete?id='. $model['Id_contract'] . "&im=" . $_GET['id'], [
+               'add-contract-to-owner-complete' => function ($url, $model, $key) {
+                   return Html::a('<button class="btn btn-primary btn-sm">Добавить</button>', 'add-contract-to-owner-complete?id='. $model['Id_contract'] . "&iw=" . $_GET['id'], [
                        'title' => 'Просмотреть информацию о договоре',
                        'data-pjax' => '0',
                         ]);
@@ -39,4 +39,3 @@
         ]
     ]);
 ?>
-

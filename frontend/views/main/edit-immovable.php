@@ -1,4 +1,4 @@
-<a href="/frontend/web/main/immovable?id=<?= $_GET['id']?>" title="Вернуться обратно к списку недвижимости" data-pjax="0">
+<a href="/main/immovable?id=<?= $_GET['id']?>" title="Вернуться обратно к списку недвижимости" data-pjax="0">
     <button class="btn btn-primary">Вернуться</button>
 </a> <br> <br>
 

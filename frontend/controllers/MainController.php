@@ -9,10 +9,16 @@ use app\models\UploadImage;
 use yii\web\UploadedFile;
 use app\models\Immovable;
 use app\models\ImmovableType;
+use app\models\StageOfWorkWithAClient;
 use app\models\Zadanie_services;
 use app\models\Contract;
 use app\models\ContractOfImmovables;
+use app\models\ContractOfOwners;
 use app\models\OwnerOfImmovables;
+use app\models\Owner;
+use app\models\OwnerType;
+use app\models\Service;
+use app\models\ServicesOfContract;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx; 
 
@@ -74,11 +80,13 @@ class MainController extends Controller
             $model->Image = null;
             $model->save();
 
-            return $this->redirect("/frontend/web/main/immovable?id=" . $model['Id_immovable']);
+            return $this->redirect("/main/immovable?id=" . $model['Id_immovable']);
         }
         else
         {
-            $model->Id_immovable_type = $this->DropDownMap();
+            $id = ImmovableType::find()->select('Id_Immovable_type')->column();
+			$name = ImmovableType::find()->select('Immovable_type_name')->column();
+			$model->Id_immovable_type = $this->DropDownMap($id, $name);
             return $this->render("add-immovable", ['model' => $model]);
         }
            
@@ -107,14 +115,16 @@ class MainController extends Controller
 
             $update_model->update();
 
-            return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['id']);
+            return $this->redirect("/main/immovable?id=" . $_GET['id']);
         }
         else
         {
             $id = $_GET['id'];
             $model = Immovable::findOne($id);
 
-            $model->Id_immovable_type = $this->DropDownMap();
+            $id = ImmovableType::find()->select('Id_Immovable_type')->column();
+			$name = ImmovableType::find()->select('Immovable_type_name')->column();
+			$model->Id_immovable_type = $this->DropDownMap($id, $name);
 
         return $this->render("edit-immovable", ['model' => $model]);
         }    
@@ -129,7 +139,7 @@ class MainController extends Controller
         $model = Immovable::findOne($id);
         $model->delete();
 
-        return $this->redirect("/frontend/web/main/immovables");
+        return $this->redirect("/main/immovables");
     }
 
     /**
@@ -172,7 +182,7 @@ class MainController extends Controller
 
         $model->save();
 
-        return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);
+        return $this->redirect("/main/immovable?id=" . $_GET['im']);
     }
 
     /**
@@ -186,7 +196,7 @@ class MainController extends Controller
         $ContractToDelete = ContractOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_contract_FK' => $Id_contract])->one();
         $ContractToDelete->delete();
 
-        return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);
+        return $this->redirect("/main/immovable?id=" . $_GET['im']);
     }
 
     /**
@@ -212,7 +222,7 @@ class MainController extends Controller
 
         $model->save();
 
-        return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);
+        return $this->redirect("/main/immovable?id=" . $_GET['im']);
     }
 
     /**
@@ -226,9 +236,300 @@ class MainController extends Controller
         $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
         $OwnerToDelete->delete();
 
-        return $this->redirect("/frontend/web/main/immovable?id=" . $_GET['im']);
+        return $this->redirect("/main/immovable?id=" . $_GET['im']);
     }
+	
+	/**
+	 * Вывод всего списка договоров 
+	 */
+	public function actionContracts()
+	{
+		return $this->render('contracts');
+	}
+	
+	/**
+	 * Вывод информации об договоре
+	 */
+	public function actionContract()
+	{
+		$model = Contract::findOne($_GET['id']);
+		
+		return $this->render('contract', ['model' => $model]);
+	}
+	
+	/**
+     * Добавить договор
+     */
+    public function actionAddContract(){
+        
+        $model = new Contract();
+        
+        if($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            $model['Date'] = date("Y-m-d");
+			//var_dump($model); exit;
+			$model->save();
+            return $this->redirect("/main/contract?id=" . $model['Id_contract']);
+        }
+        else
+        {
+            if(isset($_GET['id']))
+			{
+				$model->Id_owner_FK = $_GET['id']; 
+			}
+			$id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
+			$name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
+			$model->StageOfWork = $this->DropDownMap($id, $name);
+			$id = Owner::find()->select('Id_owner')->column();
+			$name = Owner::find()->select('Name')->column();
+			$model->Owners = $this->DropDownMap($id, $name);
+            return $this->render("add-contract", ['model' => $model]);
+        }          
+    }
+	
+	/**
+	 * Редактировать договор
+	 */
+	public function actionEditContract()
+	{
+		$model = new Contract();
+        
+        if($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            $update_model = Contract::findOne($_GET['id']);
 
+            $update_model['Id_contract'] = $_GET['id'];
+            $update_model['Number'] = $model['Number'];
+            $update_model["Total_cost"] = $model["Total_cost"];
+            $update_model["Id_owner_FK"] = $model["Id_owner_FK"];
+			$update_model["Id_stage_of_work_with_a_client_FK"] = $model["Id_stage_of_work_with_a_client_FK"];
+
+            $update_model->update();
+
+            return $this->redirect("/main/contract?id=" . $_GET['id']);
+        }
+        else
+		{
+            $id = $_GET['id'];
+            $model = Contract::findOne($id);
+
+            $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
+			$name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
+			$model->StageOfWork = $this->DropDownMap($id, $name);
+			$id = Owner::find()->select('Id_owner')->column();
+			$name = Owner::find()->select('Name')->column();
+			$model->Owners = $this->DropDownMap($id, $name);
+
+			return $this->render("edit-contract", ['model' => $model]);
+        }
+	}
+	
+	/**
+	 * Удаление договора
+	 */
+	public function actionDeleteContract()
+	{
+		$id = $_GET['id'];
+
+        $model = Contract::findOne($id);
+        $model->delete();
+
+        return $this->redirect("/main/contracts");
+	}
+	
+	/**
+	 * Список собственников
+	 */
+	public function actionOwners()
+	{
+		return $this->render('owners');
+	}
+	
+    /**
+	 * Просмотр данных собственника
+	 */
+	public function actionOwner()
+	{
+		$model = Owner::findOne($_GET['id']);
+		
+		return $this->render('owner', ['model' => $model]);
+	}
+	
+	/**
+	 * Добавление собственника
+	 */
+	public function actionAddOwner()
+	{
+		$model = new Owner();
+        
+        if($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+			$model->save();
+            return $this->redirect("/main/owner?id=" . $model['Id_owner']);
+        }
+        else
+        {
+            $id = OwnerType::find()->select('Id_owner_type')->column();
+			$name = OwnerType::find()->select('Owner_type_name')->column();
+			$model->Owner_type = $this->DropDownMap($id, $name);
+            return $this->render("add-owner", ['model' => $model]);
+        }
+	}
+	
+	/**
+	 * Изменение собственника
+	 */
+	public function actionEditOwner()
+	{
+		$model = new Owner();
+        
+        if($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            $update_model = Owner::findOne($_GET['id']);
+
+            $update_model['Id_owner'] = $_GET['id'];
+            $update_model['Name'] = $model['Name'];
+            $update_model["Phone_number"] = $model["Phone_number"];
+            $update_model["Email"] = $model["Email"];
+			$update_model["INN"] = $model["INN"];
+			$update_model["Id_owner_type_FK"] = $model["Id_owner_type_FK"];
+
+            $update_model->update();
+
+            return $this->redirect("/main/owner?id=" . $_GET['id']);
+        }
+        else
+		{
+            $id = $_GET['id'];
+            $model = Owner::findOne($id);
+
+			$id = OwnerType::find()->select('Id_owner_type')->column();
+			$name = OwnerType::find()->select('Owner_type_name')->column();
+			$model->Owner_type = $this->DropDownMap($id, $name);
+
+			return $this->render("edit-owner", ['model' => $model]);
+        }
+	}
+	
+	/**
+	 * Удаление собственника
+	 */
+	public function actionDeleteOwner()
+	{
+		$id = $_GET['id'];
+
+        $model = Owner::findOne($id);
+        $model->delete();
+		
+		return $this->redirect('owners');
+	}
+	
+	/**
+	 * Просмотр списка договоров для добавления к собственниа
+	 */
+	public function actionAddContractToOwner()
+	{
+		return $this->render('add-contract-to-owner');
+	}
+	
+	/**
+	 * Завершение добавления договора для добавления к собственнику
+	 */
+	public function actionAddContractToOwnerComplete()
+	{
+		$Id_contract = $_GET['id'];
+        $Id_owner = $_GET['iw'];
+
+        $model = new ContractOfOwners();
+
+        $model->Id_owner_FK = $Id_owner;
+        $model->Id_contract_FK = $Id_contract;
+
+        $model->save();
+
+        return $this->redirect("/main/owner?id=" . $_GET['im']);
+	}
+	
+	/**
+	 * Открытие списка недвижимости для добавлен к списку у собственника
+	 */
+	public function actionAddImmovableToOwner()
+	{
+			return $this->render('add-immovable-to-owner');
+	}
+	
+	/**
+	 * Завершение добаление собственности к собственнику 
+	 */
+	 public function actionAddImmovableToOwnerComplete()
+	{
+		$Id_immovable = $_GET['id'];
+        $Id_owner = $_GET['iw'];
+
+        $model = new ContractOfOwners();
+
+        $model->Id_owner_FK = $Id_owner;
+        $model->Id_immovable_FK = $Id_immovable;
+
+        $model->save();
+
+        return $this->redirect("/main/owner?id=" . $_GET['iw']);
+	}
+	
+	/**
+	 * Удаление собственности у собственника
+	 */
+	public function actionDeleteImmovableToOwner()
+	{
+		$Id_immovable = $_GET['id'];
+        $Id_owner = $_GET['iw'];   
+        
+        $OwnerToDelete = OwnerOfImmovables::find()->where(['Id_immovable_FK' => $Id_immovable, 'Id_owner_FK' => $Id_owner])->one();
+        $OwnerToDelete->delete();
+
+        return $this->redirect("/main/owner?id=" . $_GET['iw']);
+	}
+	
+	/**
+	 * Удаление договора у собственника
+	 */
+	public function actionDeleteContractToOwner()
+	{
+		$model = Contract::findOne($_GET['id']);
+		
+		$model->delete();
+		
+		return $this->redirect("/main/owner?id=". $_GET['iw']);
+	}
+	
+	/**
+	 * Добавление услуги к договору
+	 */
+	public function actionAddServiceToContract()
+	{
+		return $this->render('add-service-to-contract');
+	}
+	
+	/**
+	 * Завершение добавления услуги к договору
+	 */
+	public function actionAddServiceToContractComplete()
+	{
+		$Id_contract = $_GET['id'];
+        $Id_service = $_GET['ic'];
+
+        $model = new ServicesOfContract();
+
+        $model->Id_contract_FK = $Id_contract;
+        $model->Id_service_FK = $Id_service;
+		$Service = Service::findOne($_GET['ic']);
+		$model->Cost = $Service->Cost;
+
+        $model->save();
+
+        return $this->redirect("/main/contract?id=" . $_GET['ic']);
+	}
+	 
     /**
      * Для генерации отчётов
      */
@@ -238,6 +539,7 @@ class MainController extends Controller
         {
             $Begin_period = $_POST['Begin_period'];
             $End_period =  $_POST['End_period'];
+			
             $result = Zadanie_services::find()->where(['>', 'Date', $Begin_period])->all();  //Дописать условие          
 
             $writer = new Xlsx($this->GenerateReport($result, $Begin_period, $End_period));
@@ -248,19 +550,18 @@ class MainController extends Controller
             
 
             return Yii::$app->response->sendFile($file);      
+			
         }
         else 
         {
             return $this->render("report-generate");
         }
-    }
+    }	
 
     /**
      * Самописная функция для возвращения значений DropDownList
      */
-    public function DropDownMap(){
-        $id = ImmovableType::find()->select('Id_Immovable_type')->column();
-        $name = ImmovableType::find()->select('Immovable_type_name')->column();
+    public function DropDownMap($id, $name){
 
         $data = array($id, $name);
         $keys = array_shift($data); 

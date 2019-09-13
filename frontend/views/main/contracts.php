@@ -1,4 +1,4 @@
-<a href="/main/add-immovable" title="Создать новую запись недвижимости" data-pjax="0">
+<a href="/main/add-contract" title="Создать новую запись недвижимости" data-pjax="0">
     <button class="btn btn-primary">Создать</button>
 </a> <br> <br>
 
@@ -7,10 +7,10 @@
 use yii\grid\GridView;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
-use app\models\Immovable;
+use app\models\Contract;
 use yii\helpers\html;
 
-$query = Immovable::find();
+$query = Contract::find();
 
 //$query->select('Name','Cost')->from("Immovable");
 
@@ -27,27 +27,27 @@ echo GridView::widget([
         ['class' => 'yii\grid\SerialColumn'],
         // Обычные поля определенные данными содержащимися в $dataProvider.
         // Будут использованы данные из полей модели.
-        'Name',
-        'Cost',
+        'Number',
+        'Date',
 		[
          'class' => 'yii\grid\ActionColumn',
-         'template' => '{immovable} {edit-immovable} {delete-immovable}',
+         'template' => '{contract} {edit-contract} {delete-contract}',
          'buttons' => [
-            'immovable' => function ($url, $model, $key) {
+            'contract' => function ($url, $model, $key) {
                 return Html::a('<button class="btn btn-primary btn-sm">Просмотр</button>', $url, [
-                    'title' => 'Просмотреть информацию о недвижимости',
+                    'title' => 'Просмотреть информацию о договоре',
                     'data-pjax' => '0',
                 ]);
             },
-            'edit-immovable' => function ($url, $model, $key) {
+            'edit-contract' => function ($url, $model, $key) {
                 return Html::a('<button class="btn btn-warning btn-sm">Изменить</button>', $url, [
-                    'title' => 'Изменить информацию о недвижимости',
+                    'title' => 'Изменить информацию о договоре',
                     'data-pjax' => '0',
                 ]);  
             },
-            'delete-immovable' => function ($url, $model, $key) {
+            'delete-contract' => function ($url, $model, $key) {
                 return Html::a('<button class="btn btn-danger btn-sm">Удалить</button>', $url, [
-                    'title' => 'Удалить информацию о недвижимости',
+                    'title' => 'Удалить информацию о договоре',
                     'data-pjax' => '0',
                 ]);  
             },

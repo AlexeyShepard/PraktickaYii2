@@ -24,3 +24,5 @@ class UploadImage extends Model{
     }
  
 }
+
+?>

@@ -2,7 +2,7 @@
     use yii\widgets\ActiveForm;
     $form = ActiveForm::begin();
 ?>
-<form action="/frontend/web/main/report-generate" method="post">
+<form action="/main/report-generate" method="post">
     <label>Начало периода</label> <br>
     <input type="date" name="Begin_period" value="2019-01-01"/> <br>
     <label>Конец периода</label> <br>
@@ -10,4 +10,4 @@
     <input type="submit" class="btn btn-primary btn-sm" value = "Сформировать отчёт"/>
 </form>
 
-<? ActiveForm::end(); ?>
+<?php ActiveForm::end(); ?>

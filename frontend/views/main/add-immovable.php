@@ -1,4 +1,4 @@
-<a href="/frontend/web/main/immovables" title="Вернуться обратно к списку недвижимости" data-pjax="0">
+<a href="/main/immovables" title="Вернуться обратно к списку недвижимости" data-pjax="0">
     <button class="btn btn-primary">Отмена</button>
 </a> <br> <br>
 

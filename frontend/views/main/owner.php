@@ -5,39 +5,38 @@
     use yii\helpers\Html;
 ?>
 
-<a href="/main/immovables" title="Вернуться обратно к списку недвижимости" data-pjax="0">
+<a href="/main/owners" title="Вернуться обратно к списку недвижимости" data-pjax="0">
     <button class="btn btn-primary">Вернуться</button>
 </a> 
 
-<a href="/main/edit-immovable?id=<?= $model['Id_immovable']?>" title="Перейти к редактированию" data-pjax="0">
+<a href="/main/edit-owner?id=<?= $model['Id_owner']?>" title="Перейти к редактированию" data-pjax="0">
     <button class="btn btn-warning">Изменить</button>
 </a> 
 
-<a href="/main/delete-immovable?id=<?= $model['Id_immovable']?>" title="Удалить объект из базы данных" data-pjax="0">
+<a href="/main/delete-owner?id=<?= $model['Id_owner']?>" title="Удалить объект из базы данных" data-pjax="0">
     <button class="btn btn-danger">Удалить</button>
 </a> 
 
 <br> <br>
-<h3>Информация об недвижимости</h3>
-Наименование недвижимости: <?= $model['Name']; ?> <br> 
-Описание: <?= $model['Description']; ?> <br>
-Стоимость: <?= $model['Cost']; ?>
+<h3>Информация о собственнике</h3>
+ФИО/Название организации: <?= $model['Name']; ?> <br> 
+Номер телефона: <?= $model['Phone_number']; ?> <br>
+Email: <?= $model['Email']; ?> <br>
+ИНН: <?= $model['INN']; ?>
 <br> <br>
-<?= Html::img('/uploads/' . $model['ImagePath']) ?>
 
 <div class="row">
     <div class="col-lg-6">
     <h3>Список договоров</h3>
-    <a href="/main/add-contract-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить договор к недвижимости" data-pjax="0">
-        <button class="btn btn-primary">Добавить договор</button>
+    <a href="/main/add-contract?id=<?= $model['Id_owner']?>" title="Добавить договор к собственнику" data-pjax="0">
+        <button class="btn btn-primary">Создать договор</button>
     </a>
     <br> <br>
 <?php
     $query = new Query();
-    $query->select(['Contract.Id_contract','Contract.Number', 'Contract.Date'])
-    ->from('Immovables_of_contract')
-    ->join('LEFT JOIN', 'Contract', 'Immovables_of_contract.id_contract_FK = Contract.Id_contract')
-    ->where(['Immovables_of_contract.Id_immovable_FK' => $model['Id_immovable']])
+    $query->select(['Id_contract','Number', 'Date'])
+    ->from('Contract')
+    ->where(['Id_owner_FK' => $model['Id_owner']])
     ->all();
 
     $dataProvider = new ActiveDataProvider([
@@ -65,7 +64,7 @@
                         ]);
                     },
                 'delete-contract' => function ($url, $model, $key) {
-                    return Html::a('<button class="btn btn-danger btn-sm">Удалить из списка</button>', 'delete-contract-to-immovable?id='. $model['Id_contract'] . "&im=". $_GET['id'], [
+                    return Html::a('<button class="btn btn-danger btn-sm">Удалить из списка</button>', 'delete-contract-to-owner?id='. $model['Id_contract'] . "&iw=". $_GET['id'], [
                         'title' => 'Удалить контракт из списка',
                         'data-pjax' => '0',
                         ]);
@@ -76,18 +75,18 @@
 ]); ?>
     </div>
     <div class = "col-lg-6">
-    <h3>Список собственников</h3>
-    <a href="/main/add-owner-to-immovable?id=<?= $model['Id_immovable']?>" title="Добавить собственника к недвижимости" data-pjax="0">
-        <button class="btn btn-primary">Добавить собственника</button>
+    <h3>Список недвижимимости</h3>
+    <a href="/main/add-immovable-to-owner?id=<?= $model['Id_owner']?>" title="Добавить недвижимость к собственнику" data-pjax="0">
+        <button class="btn btn-primary">Добавить недвижимимость</button>
     </a>
     <br> <br>
 <?php
 
     $query = new Query();
-    $query->select(['Owner.Id_owner','Owner.Name','Owner.Phone_number', 'Owner.Email'])
+    $query->select(['Immovable.Id_immovable','Immovable.Name','Immovable.Cost'])
     ->from('Immovables_of_owner')
-    ->join('LEFT JOIN', 'Owner', 'Immovables_of_owner.id_owner_FK = Owner.Id_owner')
-    ->where(['Immovables_of_owner.Id_immovable_FK' => $model['Id_immovable']])
+    ->join('LEFT JOIN', 'Immovable', 'Immovables_of_owner.id_immovable_FK = Immovable.Id_immovable')
+    ->where(['Immovables_of_owner.Id_owner_FK' => $model['Id_owner']])
     ->all();
     
     $dataProvider = new ActiveDataProvider([
@@ -103,21 +102,20 @@
     'columns' => [
         ['class' => 'yii\grid\SerialColumn'],
         'Name',
-        'Phone_number',
-        'Email',
+        'Cost',
         [
             'class' => 'yii\grid\ActionColumn',
             'template' => '{owner} {delete-owner}',
             'buttons' => [
                'owner' => function ($url, $model, $key) {
-                   return Html::a('<button class="btn btn-primary btn-sm">Просмотр</button>', 'owner?id='. $model['Id_owner'], [
-                       'title' => 'Просмотреть информацию о владельце',
+                   return Html::a('<button class="btn btn-primary btn-sm">Просмотр</button>', 'immovable?id='. $model['Id_immovable'], [
+                       'title' => 'Просмотреть информацию о недвижимимости',
                        'data-pjax' => '0',
                         ]);
                     },
                 'delete-owner' => function ($url, $model, $key) {
-                    return Html::a('<button class="btn btn-danger btn-sm">Удалить из списка</button>', 'delete-owner-to-immovable?id='. $model['Id_owner'] . "&im=". $_GET['id'], [
-                        'title' => 'Удалить владельца из списка',
+                    return Html::a('<button class="btn btn-danger btn-sm">Удалить из списка</button>', 'delete-immovable-to-owner?id='. $model['Id_immovable'] . "&iw=". $_GET['id'], [
+                        'title' => 'Удалить недвижимимость из списка',
                         'data-pjax' => '0',
                         ]);
                     },  

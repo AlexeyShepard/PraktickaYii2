@@ -1,8 +1,8 @@
-<a href="/frontend/web/main/immovable?id=<?= $_GET['id'] ?>" title="Вернуться к информации об недвижимости" data-pjax="0">
+<a href="/main/immovable?id=<?= $_GET['id'] ?>" title="Вернуться к информации об недвижимости" data-pjax="0">
     <button class="btn btn-primary">Отмена</button>
 </a> <br> <br>
 
-<?
+<?php
     use yii\grid\GridView;
     use app\models\Owner;
     use yii\data\ActiveDataProvider;

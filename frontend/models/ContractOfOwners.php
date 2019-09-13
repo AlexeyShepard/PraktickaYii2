@@ -3,7 +3,7 @@
 
     use yii\db\ActiveRecord;
 
-    class OwnerOfImmovables extends ActiveRecord
+    class ContractOfOwners extends ActiveRecord
     {
         public static function tableName()
         {
