@@ -6,7 +6,7 @@
 ?>
 
 <a href="/frontend/web/main/services" title="Вернуться обратно к списку услуг" data-pjax="0">
-    <button class="btn btn-primary">Вернуться к списку недвижимости</button>
+    <button class="btn btn-primary">Вернуться к списку услуг</button>
 </a> 
 
 <a href="/frontend/web/main/edit-service?id=<?= $model['Id_service']?>" title="Перейти к редактированию" data-pjax="0">

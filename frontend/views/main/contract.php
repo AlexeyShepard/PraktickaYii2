@@ -53,7 +53,7 @@
     <div class="col-lg-6">
     <h3>Список услуг</h3>
     <a href="/frontend/web/main/add-service-to-contract?id=<?= $model['Id_contract']?>" title="Добавить услугу к договору" data-pjax="0">
-        <button class="btn btn-primary">Добавить</button>
+        <button class="btn btn-primary">Добавить услугу</button>
     </a> 
     <br> <br>
 
@@ -81,7 +81,7 @@
     <div class="col-lg-6">
     <h3>Список недвижимости</h3>
     <a href="/frontend/web/main/add-immovable-to-contract?id=<?= $model['Id_contract']?>" title="Добавить недвижимость к договору" data-pjax="0">
-        <button class="btn btn-primary">Добавить</button>
+        <button class="btn btn-primary">Добавить недвижимость</button>
     </a> 
     <br> <br>
 

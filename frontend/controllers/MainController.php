@@ -24,21 +24,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MainController extends Controller
 {
-    /*public function actionExcelUpload()
-    {
-        $model = new ExcelUploadForm();
-
-        if(Yii::$app->request->isPost)
-        {
-            $model->excelFile = Uploaded::getInstance($model, 'excelFile');
-            if ($model->upload())
-            {
-                return;
-            }
-        }
-
-        return $this->render('excel-upload', ['model' => $model]);
-    }*/
 	
     /**
      * Главная страница сайта
@@ -73,7 +58,16 @@ class MainController extends Controller
             $id = $_GET['id'];
             $model = Immovable::findOne($id);
 
-            return $this->render("immovable", ['model' => $model]);    
+            if($model != null)
+            {
+                return $this->render("immovable", ['model' => $model]); 
+            }
+            else
+            {
+                return $this->redirect('/fronend/web/main/immovables');
+            }
+
+                
         }
         else
         {
@@ -151,11 +145,19 @@ class MainController extends Controller
                 $id = $_GET['id'];
                 $model = Immovable::findOne($id);
 
-                $id = ImmovableType::find()->select('Id_Immovable_type')->column();
-			    $name = ImmovableType::find()->select('Immovable_type_name')->column();
-			    $model->Id_immovable_type = $this->DropDownMap($id, $name);
+                if($model != null)
+                {
+                    $id = ImmovableType::find()->select('Id_Immovable_type')->column();
+			        $name = ImmovableType::find()->select('Immovable_type_name')->column();
+			        $model->Id_immovable_type = $this->DropDownMap($id, $name);
 
-                return $this->render("edit-immovable", ['model' => $model]);
+                    return $this->render("edit-immovable", ['model' => $model]);
+                }
+                else
+                {
+                    return $this->redirect('/frontend/web/main/immovable');
+                }
+                
             }    
         }
         else
@@ -371,7 +373,16 @@ class MainController extends Controller
         {
             $model = Contract::findOne($_GET['id']);
 		
-		    return $this->render('contract', ['model' => $model]);     
+            if($model != null)
+            {
+                return $this->render('contract', ['model' => $model]);      
+            }
+            else
+            {
+                return $this->redirect('/frontend/web/main/contracts');
+            }
+            
+               
         }
         else
         {
@@ -405,7 +416,7 @@ class MainController extends Controller
                 $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
                 $name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
                 $model->StageOfWork = $this->DropDownMap($id, $name);
-                $id = Owner::find()->select('Id_owner')->column();
+                $id = Owner::find()->select('Id_owner')->orderBy(['Id_owner' => SORT_ASC])->column();
                 $name = Owner::find()->select('Name')->column();
                 $model->Owners = $this->DropDownMap($id, $name);
                 return $this->render("add-contract", ['model' => $model]);
@@ -446,14 +457,23 @@ class MainController extends Controller
                 $id = $_GET['id'];
                 $model = Contract::findOne($id);
     
-                $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
-                $name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
-                $model->StageOfWork = $this->DropDownMap($id, $name);
-                $id = Owner::find()->select('Id_owner')->column();
-                $name = Owner::find()->select('Name')->column();
-                $model->Owners = $this->DropDownMap($id, $name);
+                if($model != null)
+                {
+                    $id = StageOfWorkWithAClient::find()->select('Id_stage_of_work_with_a_client')->column();
+                    $name = StageOfWorkWithAClient::find()->select('Stage_of_work_with_a_client_name')->column();
+                    $model->StageOfWork = $this->DropDownMap($id, $name);
+                    $id = Owner::find()->select('Id_owner')->column();
+                    $name = Owner::find()->select('Name')->column();
+                    $model->Owners = $this->DropDownMap($id, $name);
     
-                return $this->render("edit-contract", ['model' => $model]);
+                    return $this->render("edit-contract", ['model' => $model]);
+                }
+                else
+                {
+                    return $this->redirect('/frontend/web/main/contracts');  
+                }
+                
+                
             }     
         }
         else
@@ -512,7 +532,16 @@ class MainController extends Controller
         {
             $model = Owner::findOne($_GET['id']);
 		
-		    return $this->render('owner', ['model' => $model]);    
+            if($model != null)
+            {
+                return $this->render('owner', ['model' => $model]); 
+            }
+            else
+            {
+                return $this->redirect('/frontend/web/main/owners');
+            }
+
+               
         }
         else
         {
@@ -579,11 +608,18 @@ class MainController extends Controller
                 $id = $_GET['id'];
                 $model = Owner::findOne($id);
     
-                $id = OwnerType::find()->select('Id_owner_type')->column();
-                $name = OwnerType::find()->select('Owner_type_name')->column();
-                $model->Owner_type = $this->DropDownMap($id, $name);
+                if($model != null)
+                {
+                    $id = OwnerType::find()->select('Id_owner_type')->column();
+                    $name = OwnerType::find()->select('Owner_type_name')->column();
+                    $model->Owner_type = $this->DropDownMap($id, $name);
     
-                return $this->render("edit-owner", ['model' => $model]);
+                    return $this->render("edit-owner", ['model' => $model]);
+                }
+                else
+                {
+                    return $this->redirect("/frontend/web/main/owners");
+                }             
             }    
         }
         else
@@ -900,8 +936,16 @@ class MainController extends Controller
         if(!Yii::$app->user->isGuest)
         {
             $model = Service::findOne($_GET['id']);
-        
-            return $this->render('service', ['model' => $model]);
+            
+            if($model != null)
+            {
+                return $this->render('service', ['model' => $model]);
+            }
+            else
+            {
+                return $this->redirect('/frontend/web/main/services');
+            }
+            
         }
         else
         {
@@ -962,8 +1006,16 @@ class MainController extends Controller
             {
                 $id = $_GET['id'];
                 $model = Service::findOne($id);
-    
-                return $this->render("edit-service", ['model' => $model]);
+
+                if($model != null)
+                {
+                    return $this->render("edit-service", ['model' => $model]);
+                }
+                else
+                {
+                    return $this->redirect("/frontend/web/main/services");
+                }
+                
             }
         }
         else
@@ -982,7 +1034,7 @@ class MainController extends Controller
         {
             $ServicesOfContract = ServicesOfContract::deleteAll(['Id_service_FK' => $_GET['id']]);
             
-            $model = Service::findOne($_GET['id']);
+            $model = Service::find()->where(['Id_service' => $_GET['id']])->one();
             $model->delete();
   
             return $this->redirect('/frontend/web/main/services');
@@ -1015,8 +1067,8 @@ class MainController extends Controller
                 ->all();*/
 
                 $result = ServicesOfContract::find()
-                ->where(['>', 'Date', $Begin_period])
-                ->andWhere(['<', 'Date', $End_period])
+                ->where(['>=', 'Date', $Begin_period])
+                ->andWhere(['<=', 'Date', $End_period])
                 ->all();
 
                 $writer = new Xlsx($this->GenerateReport($result, $Begin_period, $End_period));
@@ -1043,8 +1095,13 @@ class MainController extends Controller
      * Самописная функция для возвращения значений DropDownList
      */
     public function DropDownMap($id, $name){
-
+      
         $data = array($id, $name);
+
+        /*echo '<pre>';
+        var_dump($data);
+        echo '</pre>';*/
+        
         $keys = array_shift($data); 
         $result = array_map(function($v) use($keys){
             return array_combine($keys, $v);
@@ -1082,7 +1139,7 @@ class MainController extends Controller
         }
 
         $cashIndex = $index - 1;
-        $formula = "=SUM(D4:D". $cashIndex.")";
+        $formula = "=SUM(D2:D". $cashIndex.")";
         $sheet->setCellValue("D".$index, $formula);
         $sheet->setCellValue("C".$index, "Итого");
 
