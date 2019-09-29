@@ -403,8 +403,9 @@ class MainController extends Controller
             if($model->load(Yii::$app->request->post()) && $model->validate())
             {
                 $model['Date'] = date("Y-m-d");
-                //var_dump($model); exit;
+                $model['Total_cost'] = 0;
                 $model->save();
+                //die;
                 return $this->redirect("/frontend/web/main/contract?id=" . $model['Id_contract']);
             }
             else
@@ -444,7 +445,7 @@ class MainController extends Controller
     
                 $update_model['Id_contract'] = $_GET['id'];
                 $update_model['Number'] = $model['Number'];
-                $update_model["Total_cost"] = $model["Total_cost"];
+                //$update_model["Total_cost"] = $model["Total_cost"];
                 $update_model["Id_owner_FK"] = $model["Id_owner_FK"];
                 $update_model["Id_stage_of_work_with_a_client_FK"] = $model["Id_stage_of_work_with_a_client_FK"];
     
@@ -806,7 +807,7 @@ class MainController extends Controller
             $Id_service = $_GET['id'];
     
             $model = new ServicesOfContract();
-    
+  
             $model->Id_contract_FK = $Id_contract;
             $model->Id_service_FK = $Id_service;
             $Service = Service::findOne($_GET['id']);
@@ -814,6 +815,27 @@ class MainController extends Controller
             $model->Date = date("Y-m-d");
     
             $model->save();
+
+            /**
+             * Пересчёт итоговой суммы
+             */
+            $Service = Service::find()->where(['Id_service' => $Id_service])->one();
+            $ServiceCost = $Service['Cost'];
+            $Contract = Contract::find()->where(['Id_contract' => $Id_contract])->one();
+            $Contract['Total_cost'] += $ServiceCost;
+            $Contract->update();
+
+
+            /*$allServicesOfContract = ServicesOfContract::find()->where(['Id_service_FK' = $Id_service])->all();
+
+            foreach($allServicesOfContract as $row)
+            {
+                $Total_cost += $row['Cost'];    
+            }
+
+            $Id_immovable = ContractOfImmovables::find()->select('Id_immovable_FK')->where(['Id_contract_FK' => $Id_contract])->one();
+            
+            $allImmovablesOfContract = ContractOfImmovables::find()->select(['Id_immovable_FK' = $Id_immovable])->all();*/
     
             return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']); 
         }
@@ -834,8 +856,14 @@ class MainController extends Controller
             $Id_service = $_GET['id'];
             $Id_contract = $_GET['ic'];   
             
-            $OwnerToDelete = ServicesOfContract::find()->where(['Id_contract_FK' => $Id_contract, 'Id_service_FK' => $Id_service])->one();
-            $OwnerToDelete->delete();
+            $ServiceToDelete = ServicesOfContract::find()->where(['Id_contract_FK' => $Id_contract, 'Id_service_FK' => $Id_service])->one();
+            $ServiceToDelete->delete();
+
+            $Service = Service::find()->where(['Id_service' => $Id_service])->one();
+            $ServiceCost = $Service['Cost'];
+            $Contract = Contract::find()->where(['Id_contract' => $Id_contract])->one();
+            $Contract['Total_cost'] -= $ServiceCost;
+            $Contract->update();
     
             return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
         }
@@ -880,6 +908,12 @@ class MainController extends Controller
             $model->Cost = $Immovable['Cost'];
     
             $model->save();
+
+            $Immovable = Immovable::find()->where(['Id_immovable' => $Id_immovable])->one();
+            $ImmovableCost = $Immovable['Cost'];
+            $Contract = Contract::find()->where(['Id_contract' => $Id_contract])->one();
+            $Contract['Total_cost'] += $ImmovableCost;
+            $Contract->update();
     
             return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
         }
@@ -902,6 +936,12 @@ class MainController extends Controller
     
             $ImmovableToDelete = ContractOfImmovables::find()->where(['Id_contract_FK' => $_GET['ic'], 'Id_immovable_FK' => $_GET['id']])->one();
             $ImmovableToDelete->delete();
+
+            $Immovable = Immovable::find()->where(['Id_immovable' => $Id_immovable])->one();
+            $ImmovableCost = $Immovable['Cost'];
+            $Contract = Contract::find()->where(['Id_contract' => $Id_contract])->one();
+            $Contract['Total_cost'] -= $ImmovableCost;
+            $Contract->update();
     
             return $this->redirect("/frontend/web/main/contract?id=" . $_GET['ic']);   
         }

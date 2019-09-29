@@ -11,7 +11,7 @@
     $form = ActiveForm::begin();   
 ?>   
     <?= $form->field($model, 'Number')->label('Номер заказа')->hint("5 символов"); ?>
-    <?= $form->field($model, 'Total_cost')->label('Итоговая сумма')->hint("Не более 11 символов") ?>
+    <?php //$form->field($model, 'Total_cost')->label('Итоговая сумма')->hint("Не более 11 символов") ?>
     <?= $form->field($model, 'Id_stage_of_work_with_a_client_FK')->dropdownList($model->StageOfWork,
     ['prompt'=>'Выберите этап работы с клиентами'])->label("Этап работы с клиентом"); ?>
 	<?= $form->field($model, 'Id_owner_FK')->dropdownList($model->Owners,
